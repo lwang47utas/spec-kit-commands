@@ -16,18 +16,31 @@ argument-hint: <feature 目录路径>
 
 ## 输出
 
-- 写入文件：`$1/finish.md`（覆盖写入；这就是下一轮 specify 的「上一轮基线」）
+- **子 spec 收口**（`$1` 是子 spec 目录，如 `specs/001-feature/001a-基座`）：写入 `$1/finish.md`，记录该子 spec 的落地状态。
+- **父 spec 全局收口**（`$1` 是父 spec 目录，如 `specs/001-feature`，且下面有子 spec 目录）：读取所有子 spec 的 finish.md，汇总生成 `$1/finish.md`，作为整个 spec 的完成基线。此时不要求父目录下有 spec.md 等六件套——只需子 spec 各自完成即可。
 
 ## 前置检查
 
 1. `$1` 为空 → 报错：「请传入 feature 目录路径，例：`/finish specs/002-MMP-refine-UI`」并停止。
-2. 必读六件套（spec / clarify / design / plan / tasks / analyze）任一缺失 → 报错并提示对应命令。
-3. 读 `$1/analyze.md`，**如阻塞性问题数 > 0 → 拒绝执行**：「本轮存在阻塞，禁止 finish。先修阻塞，重跑 /analyze $1 再回来」。
-4. 提示用户确认「所有 task 已实施完毕、测试已通过、相关 PR 已合并」。如无法确认，建议中止。
+2. **判断模式**：检查 `$1` 下是否存在子 spec 目录（包含 `finish.md` 的子目录）。
+   - **有子 spec** → 进入「父 spec 全局收口」模式（跳到步骤 5b）。
+   - **无子 spec** → 进入「子 spec 收口」模式（继续步骤 3）。
+3. （子 spec 模式）必读六件套（spec / clarify / design / plan / tasks / analyze）任一缺失 → 报错并提示对应命令。design.md 可选——纯后端 spec 可能没有。
+4. 读 `$1/analyze.md`，**如阻塞性问题数 > 0 → 拒绝执行**：「本轮存在阻塞，禁止 finish。先修阻塞，重跑 /analyze $1 再回来」。
+4b. 提示用户确认「所有 task 已实施完毕、测试已通过、相关 PR 已合并」。如无法确认，建议中止。
 
 ## 执行步骤
 
-5. 综合本轮六件套 + 上一轮 finish.md（如存在），生成 `$1/finish.md`。
+### 5a. 子 spec 收口模式
+
+综合本轮六件套 + 上一轮 finish.md（如存在），生成 `$1/finish.md`。
+
+### 5b. 父 spec 全局收口模式
+
+扫描 `$1` 下所有子 spec 目录，读取每个子 spec 的 `finish.md`：
+- 如果任一子 spec 缺少 finish.md → 报错：「子 spec `XXXa-名称` 尚未完成，请先运行 `/finish $1/XXXa-名称`」。
+- 全部子 spec 都有 finish.md → 汇总生成 `$1/finish.md`，包含所有子 spec 的落地能力、数据/接口/配置、遗留问题。
+
 6. **finish.md 是事实清单，不是文档归档**——不要重复抄 spec/plan 的全文；只压缩"对下一轮 specify 有用的事实"。结构如下：
 
    ```markdown
