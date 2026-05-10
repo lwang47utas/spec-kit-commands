@@ -78,20 +78,40 @@ argument-hint: <feature 目录路径，如 specs/003-new-feature>
 
 或
 
-**B) 建议拆分为 N 个 spec**：
+**B) 建议拆分为 N 个子 spec**：
 
-| # | spec 目录 | 范围 | 预估 FR | 依赖 |
-|---|-----------|------|---------|------|
-| 1 | `specs/XXXa-名称` | 描述 | ~N | 无 |
-| 2 | `specs/XXXb-名称` | 描述 | ~N | 依赖 XXXa |
-| 3 | `specs/XXXc-名称` | 描述 | ~N | 依赖 XXXb |
+子 spec 目录创建在**父 spec 目录内部**，用字母后缀区分顺序：
+
+| # | 子 spec 目录 | 范围 | 预估 FR | 依赖 |
+|---|-------------|------|---------|------|
+| 1 | `$1/XXXa-名称` | 描述 | ~N | 无 |
+| 2 | `$1/XXXb-名称` | 描述 | ~N | 依赖 XXXa |
+| 3 | `$1/XXXc-名称` | 描述 | ~N | 依赖 XXXb |
+
+目录结构示例：
+```
+specs/001-feature/           ← 父 spec（保留 brief.md 作为整体方案参考）
+  ├── brief.md               ← 父 brief（整体需求，不再单独 /specify）
+  ├── 001a-基座/             ← 子 spec 1
+  │   ├── brief.md
+  │   ├── spec.md
+  │   └── ...
+  ├── 001b-核心逻辑/         ← 子 spec 2
+  │   ├── brief.md
+  │   └── ...
+  └── 001c-验收/             ← 子 spec 3
+      ├── brief.md
+      └── ...
+```
 
 **执行顺序**：XXXa → finish 验证 → XXXb → finish 验证 → XXXc
 
 **拆分原则**：
+- 子 spec 嵌套在父 spec 目录下，父 brief.md 保留作为整体方案参考
 - 每个子 spec 可独立部署、独立验证
 - 有依赖关系的按层拆（地基先行）
 - 每个子 spec 的 brief.md 需要用户确认后再 /specify
+- 后续 /specify、/clarify、/plan 等命令传入子 spec 路径（如 `/specify $1/XXXa-名称`）
 ```
 
 ## 拆分操作
